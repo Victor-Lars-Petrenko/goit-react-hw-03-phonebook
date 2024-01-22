@@ -4,13 +4,11 @@ import { nanoid } from 'nanoid';
 import { Div, Heading } from './App.styled';
 
 import { ContactForm } from './ContactForm';
-import { Filter } from './Filter';
 import { ContactList } from './ContactList';
 
 export class App extends Component {
   state = {
     contacts: [],
-    filter: '',
   };
 
   componentDidMount() {
@@ -20,7 +18,7 @@ export class App extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_, prevState) {
     if (prevState.contacts !== this.state.contacts) {
       localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
     }
@@ -47,24 +45,6 @@ export class App extends Component {
     }));
   };
 
-  handleChange = e => {
-    const { value } = e.target;
-    this.setState({
-      filter: `${value}`,
-    });
-  };
-
-  filterContacts = () => {
-    const { contacts, filter } = this.state;
-    if (filter === '') {
-      return contacts;
-    }
-    const filtered = contacts.filter(({ name }) =>
-      name.toLowerCase().includes(filter.toLowerCase())
-    );
-    return filtered;
-  };
-
   handleClick = e => {
     const { contacts } = this.state;
     const updatedContacts = contacts.filter(({ id }) => id !== e.target.id);
@@ -74,15 +54,15 @@ export class App extends Component {
   };
 
   render() {
-    const { filter } = this.state;
+    const { contacts } = this.state;
+    const { handleSubmit, handleClick } = this;
     return (
       <Div>
         <Heading>Phonebook</Heading>
-        <ContactForm onSubmit={this.handleSubmit} />
+        <ContactForm onSubmit={handleSubmit} />
 
-        <Heading>Contacts</Heading>
-        <Filter onChange={this.handleChange} filterValue={filter} />
-        <ContactList items={this.filterContacts()} onClick={this.handleClick} />
+        {contacts[0] && <Heading>Contacts</Heading>}
+        <ContactList items={contacts} onClick={handleClick} />
       </Div>
     );
   }
